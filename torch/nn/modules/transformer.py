@@ -209,6 +209,11 @@ class TransformerEncoder(Module):
         src_key_padding_mask_for_layers = src_key_padding_mask
         why_not_sparsity_fast_path = ''
         str_first_layer = "self.layers[0]"
+        if src_key_padding_mask is not None:
+            if src_key_padding_mask.dtype != torch.bool:
+                if not torch.is_floating_point(src_key_padding_mask):
+                    raise AssertionError(
+                        "only bool and floating type of key_padding_mask is supported")
         if not isinstance(first_layer, torch.nn.TransformerEncoderLayer):
             why_not_sparsity_fast_path = f"{str_first_layer} was not TransformerEncoderLayer"
         elif first_layer.norm_first :
@@ -443,6 +448,11 @@ class TransformerEncoderLayer(Module):
         """
 
         # see Fig. 1 of https://arxiv.org/pdf/2002.04745v1.pdf
+        if src_key_padding_mask is not None:
+            if src_key_padding_mask.dtype != torch.bool:
+                if not torch.is_floating_point(src_key_padding_mask):
+                    raise AssertionError(
+                        "only bool and floating type of key_padding_mask is supported")
         why_not_sparsity_fast_path = ''
         if not src.dim() == 3:
             why_not_sparsity_fast_path = f"input not batched; expected src.dim() of 3 but got {src.dim()}"
